@@ -115,7 +115,7 @@ dependencies {
 
 ## 模块目录结构
 
-**UI 层统一用 `ui/` 目录，按组件类型再细分子目录：**
+**UI 层按页面/功能分包，同一页面的 Activity、Fragment、ViewModel、Adapter 等放在一起：**
 
 ```
 {{MODULE_NAME}}/
@@ -127,12 +127,18 @@ dependencies {
     │   ├── java/
     │   │   └── {{包路径}}/
     │   │       ├── ui/
-    │   │       │   ├── activity/
-    │   │       │   ├── fragment/
-    │   │       │   ├── compose/
-    │   │       │   ├── dialog/
-    │   │       │   └── adapter/
-    │   │       ├── viewmodel/
+    │   │       │   ├── login/                    # 按页面聚合
+    │   │       │   │   ├── LoginActivity.kt
+    │   │       │   │   ├── LoginFragment.kt
+    │   │       │   │   ├── LoginViewModel.kt
+    │   │       │   │   └── LoginAdapter.kt
+    │   │       │   ├── register/
+    │   │       │   │   ├── RegisterActivity.kt
+    │   │       │   │   └── RegisterViewModel.kt
+    │   │       │   └── common/                   # 页面间复用的 UI 组件
+    │   │       │       ├── dialog/
+    │   │       │       ├── adapter/
+    │   │       │       └── widget/
     │   │       ├── api/
     │   │       ├── service/
     │   │       ├── model/
@@ -153,16 +159,20 @@ dependencies {
         └── AndroidManifest.xml  # 含 LAUNCHER Activity
 ```
 
+**分包原则：**
+
+- **按页面分包**：同一页面的 Activity、Fragment、ViewModel、Adapter 放在同一个目录下，改一个页面不用跳多个文件夹
+- **`ui/common/`**：跨页面复用的 UI 组件（通用 Dialog、通用 Adapter、自定义 Widget）
+- 页面目录命名用小写，如 `login/`、`order_detail/`、`settings/`
+
 **子目录说明：**
 
 | 目录 | 用途 |
 |------|------|
-| `ui/activity/` | Activity 类 |
-| `ui/fragment/` | Fragment 类 |
-| `ui/compose/` | Compose 页面组件（`@Composable` 函数、Screen） |
-| `ui/dialog/` | Dialog、DialogFragment、BottomSheetDialog 等 |
-| `ui/adapter/` | RecyclerView Adapter、ViewPager Adapter 等 |
-| `viewmodel/` | ViewModel |
+| `ui/{page}/` | 按页面聚合，包含该页面的 Activity、Fragment、ViewModel、Adapter 等 |
+| `ui/common/dialog/` | 跨页面复用的 Dialog、DialogFragment、BottomSheetDialog 等 |
+| `ui/common/adapter/` | 跨页面复用的 RecyclerView Adapter、ViewPager Adapter 等 |
+| `ui/common/widget/` | 跨页面复用的自定义 View、自定义 Widget |
 | `api/` | Retrofit/OkHttp 接口定义 |
 | `service/` | 业务服务接口和内部实现 |
 | `model/request/` | 请求参数模型 |
@@ -210,7 +220,7 @@ dependencies {
         android:label="{{MODULE_NAME}} Debug"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity
-            android:name="{{包名}}.ui.activity.XxxActivity"
+            android:name="{{包名}}.ui.xxx.XxxActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
