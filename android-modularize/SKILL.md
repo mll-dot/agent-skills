@@ -163,6 +163,19 @@ router  -->  项目最底层公共模块（如 basic:common）+ 路由库
 
 将 Activity、Fragment、ViewModel、Adapter、Dialog 等迁入业务模块。
 
+**迁移时建议按页面分包重新组织目录结构。** 迁移是重新组织代码结构的最佳时机，建议将同一页面的 Activity、Fragment、ViewModel、Adapter 放在同一个包下，而非按类型分包。主动向用户建议：
+
+```
+迁移时建议按页面分包，将同一页面的相关类放在一起：
+- ui/login/        → LoginActivity, LoginFragment, LoginViewModel, LoginAdapter
+- ui/orderDetail/  → OrderDetailActivity, OrderDetailViewModel, OrderDetailAdapter
+- ui/common/       → 跨页面复用的 Dialog、Adapter、Widget
+
+这样改一个页面不用跳多个文件夹，后续维护更方便。是否按这个结构迁移？
+```
+
+如果用户原有代码已经按类型分包（如 `activity/`、`fragment/`、`adapter/`），迁移时正好是调整为按页面分包的好时机。但如果用户坚持保留原有分包方式，也尊重用户选择。
+
 **迁移时需要同步处理：**
 - **资源文件**：layout、drawable、values 等从 app/res 迁入模块 res，确保 `resourcePrefix` 命名
 - **R 类引用**：迁入新模块后 R 类变为模块自己的 R 类，DataBinding 的 R 引用需要注意

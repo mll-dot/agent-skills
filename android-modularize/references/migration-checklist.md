@@ -36,6 +36,7 @@
 - [ ] 配置 resourcePrefix
 - [ ] 配置 isApplication 开关（独立调试）
 - [ ] 配置路由注解处理器（kapt/annotationProcessor）
+- [ ] 建议用户按页面分包组织目录结构（同一页面的 Activity、Fragment、ViewModel、Adapter 放同一个包下），如用户同意则按新结构迁移
 - [ ] 迁移源代码文件
 - [ ] 迁移资源文件（layout、drawable、values 等）
 - [ ] 迁移 AndroidManifest.xml 中的声明
