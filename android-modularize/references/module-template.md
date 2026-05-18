@@ -115,7 +115,11 @@ dependencies {
 
 ## 模块目录结构
 
-**UI 层按页面/功能分包，同一页面的 Activity、Fragment、ViewModel、Adapter 等放在一起：**
+**根据业务量选择分包策略：页面 ≥ 3 个用按页面分包，页面 < 3 个用按类型扁平分包。**
+
+### 方式一：按页面分包（页面 ≥ 3 个，业务较多时使用）
+
+同一页面的 Activity、Fragment、ViewModel、Adapter 放在一起：
 
 ```
 {{MODULE_NAME}}/
@@ -159,20 +163,69 @@ dependencies {
         └── AndroidManifest.xml  # 含 LAUNCHER Activity
 ```
 
+### 方式二：按类型扁平分包（页面 < 3 个，业务较少时使用）
+
+无需在 ui 下新建业务包，直接按类型分类：
+
+```
+{{MODULE_NAME}}/
+├── build.gradle
+├── proguard-rules.pro
+└── src/
+    ├── main/
+    │   ├── AndroidManifest.xml
+    │   ├── java/
+    │   │   └── {{包路径}}/
+    │   │       ├── ui/
+    │   │       │   ├── activity/               # 所有 Activity
+    │   │       │   │   └── XxxActivity.kt
+    │   │       │   ├── adapter/                # 所有 Adapter
+    │   │       │   │   └── XxxAdapter.kt
+    │   │       │   ├── dialog/                 # 所有 Dialog、DialogFragment
+    │   │       │   │   └── XxxDialog.kt
+    │   │       │   ├── fragment/               # 所有 Fragment（如有）
+    │   │       │   │   └── XxxFragment.kt
+    │   │       │   └── viewmodel/              # 所有 ViewModel（数量少也可直接放 ui/ 下）
+    │   │       │       └── XxxViewModel.kt
+    │   │       ├── api/
+    │   │       ├── service/
+    │   │       ├── model/
+    │   │       │   ├── request/
+    │   │       │   ├── response/
+    │   │       │   └── bean/
+    │   │       └── utils/
+    │   │           ├── manager/
+    │   │           └── helper/
+    │   └── res/
+    │       ├── layout/
+    │       ├── drawable/
+    │       └── values/
+    └── debug/                    # 独立调试用
+        ├── java/
+        │   └── {{包路径}}/
+        │       └── DebugApp.kt
+        └── AndroidManifest.xml  # 含 LAUNCHER Activity
+```
+
+---
+
 **分包原则：**
 
-- **按页面分包**：同一页面的 Activity、Fragment、ViewModel、Adapter 放在同一个目录下，改一个页面不用跳多个文件夹
-- **`ui/common/`**：跨页面复用的 UI 组件（通用 Dialog、通用 Adapter、自定义 Widget）
+- **页面 ≥ 3 个（业务较多）→ 按页面分包**：同一页面的 Activity、Fragment、ViewModel、Adapter 放在同一个目录下，改一个页面不用跳多个文件夹
+- **页面 < 3 个（业务较少）→ 按类型扁平分包**：直接用 `activity/`、`adapter/`、`dialog/`、`fragment/`、`viewmodel/` 分类，避免过度拆分增加不必要的目录层级
 - 页面目录命名用小驼峰，如 `login/`、`orderDetail/`、`settings/`
 
 **子目录说明：**
 
 | 目录 | 用途 |
 |------|------|
-| `ui/{page}/` | 按页面聚合，包含该页面的 Activity、Fragment、ViewModel、Adapter 等 |
-| `ui/common/dialog/` | 跨页面复用的 Dialog、DialogFragment、BottomSheetDialog 等 |
-| `ui/common/adapter/` | 跨页面复用的 RecyclerView Adapter、ViewPager Adapter 等 |
-| `ui/common/widget/` | 跨页面复用的自定义 View、自定义 Widget |
+| `ui/{page}/` | 按页面聚合（业务较多时），包含该页面的 Activity、Fragment、ViewModel、Adapter 等 |
+| `ui/activity/` | 所有 Activity（业务较少时） |
+| `ui/adapter/` | 所有 Adapter（业务较少时）或跨页面复用的 Adapter（业务较多时放在 `ui/common/adapter/`） |
+| `ui/dialog/` | 所有 Dialog、DialogFragment（业务较少时）或跨页面复用的 Dialog（业务较多时放在 `ui/common/dialog/`） |
+| `ui/fragment/` | 所有 Fragment（业务较少时） |
+| `ui/viewmodel/` | 所有 ViewModel（业务较少时，数量少也可直接放 ui/ 下） |
+| `ui/common/` | 跨页面复用的 UI 组件（仅按页面分包时使用） |
 | `api/` | Retrofit/OkHttp 接口定义 |
 | `service/` | 业务服务接口和内部实现 |
 | `model/request/` | 请求参数模型 |

@@ -60,7 +60,9 @@ description: |
 - **业务模块名**：沿用项目已有前缀（`at_`、`lib_`、`module_`、`feature_`）+ 业务域名
 - **service-api 名**：`service:` 前缀 + 业务域名 + `-api` 后缀，如果项目没有 service 层目录则直接用 `xxx-api`
 - **包名**：沿用 app 包名前缀 + 业务域名，如项目习惯用独立包名则用独立包名
-- **页面分包名**：根据该模块内已有页面（Activity/Fragment）的命名，提取业务功能名作为包名，用小驼峰风格（如 `login/`、`orderDetail/`、`forgotPwd/`），同一页面的 Activity、Fragment、ViewModel、Adapter 放在同一个包下
+- **页面分包名**：根据该模块内页面数量决定分包策略：
+  - **页面 ≥ 3 个**（业务较多）：按页面分包，提取业务功能名作为包名，用小驼峰风格（如 `ui/login/LoginActivity`、`ui/orderDetail/OrderDetailActivity`），同一页面的 Activity、Fragment、ViewModel、Adapter 放在同一个包下
+  - **页面 < 3 个**（业务较少）：无需在 ui 下新建业务包，直接按类型扁平分包（如 `ui/activity/`、`ui/adapter/`、`ui/dialog/`、`ui/viewmodel/`），避免过度拆分
 
 ---
 
@@ -163,10 +165,11 @@ router  -->  项目最底层公共模块（如 basic:common）+ 路由库
 
 将 Activity、Fragment、ViewModel、Adapter、Dialog 等迁入业务模块。
 
-**迁移时建议按页面分包重新组织目录结构。** 迁移是重新组织代码结构的最佳时机，建议将同一页面的 Activity、Fragment、ViewModel、Adapter 放在同一个包下，而非按类型分包。主动向用户建议：
+**迁移时根据业务量选择分包策略。** 迁移是重新组织代码结构的最佳时机，根据该模块内页面数量选择合适的分包方式，主动向用户建议：
 
+**页面 ≥ 3 个（业务较多）— 按页面分包：**
 ```
-迁移时建议按页面分包，将同一页面的相关类放在一起：
+业务较多，建议按页面分包，将同一页面的相关类放在一起：
 - ui/login/        → LoginActivity, LoginFragment, LoginViewModel, LoginAdapter
 - ui/orderDetail/  → OrderDetailActivity, OrderDetailViewModel, OrderDetailAdapter
 - ui/common/       → 跨页面复用的 Dialog、Adapter、Widget
@@ -174,7 +177,18 @@ router  -->  项目最底层公共模块（如 basic:common）+ 路由库
 这样改一个页面不用跳多个文件夹，后续维护更方便。是否按这个结构迁移？
 ```
 
-如果用户原有代码已经按类型分包（如 `activity/`、`fragment/`、`adapter/`），迁移时正好是调整为按页面分包的好时机。但如果用户坚持保留原有分包方式，也尊重用户选择。
+**页面 < 3 个（业务较少）— 按类型扁平分包：**
+```
+业务较少，建议按类型扁平分包，无需在 ui 下新建业务包：
+- ui/activity/     → 所有 Activity
+- ui/adapter/      → 所有 Adapter
+- ui/dialog/       → 所有 Dialog、DialogFragment
+- ui/viewmodel/    → 所有 ViewModel（或直接放在 ui/ 下）
+
+页面少时按页面分包反而增加目录层级，扁平结构更直观。是否按这个结构迁移？
+```
+
+如果用户原有代码已经按类型分包（如 `activity/`、`fragment/`、`adapter/`），且业务较少，可直接沿用。但如果业务较多，迁移时正好是调整为按页面分包的好时机。尊重用户的最终选择。
 
 **迁移时需要同步处理：**
 - **资源文件**：layout、drawable、values 等从 app/res 迁入模块 res，确保 `resourcePrefix` 命名
